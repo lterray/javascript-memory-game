@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+        
+        <!-- <link rel="stylesheet" type="text/css" href="xy.css">-->
+        <!-- <script src="{{url_for('static', filename='xy.js')}}" defer></script>-->
+    </head>
+    <body>
+        <form action="/memory-game" method="GET">
+            <select name="row-number">
+                {%  for row_option in row_number_options %}
+                    <option value="{{ row_option }}" {{ "selected" if default_row_number == row_option else "" }}>{{ row_option }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <select name="column-number">
+                {%  for column_option in column_number_options %}
+                    <option value="{{ column_option }}">{{ column_option }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <input type="submit" value="Let's play'">
+        </form>
+    </body>
+</html>

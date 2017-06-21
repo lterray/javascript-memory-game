@@ -1,23 +1,60 @@
-function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i--) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
 }
 
-var possiblePictures = [
+var possibleIcons = [
+    'fa-book',
+    'fa-bookmark',
+    'fa-bookmark-o',
+    'fa-braille',
+    'fa-briefcase',
+    'fa-bug',
+    'fa-bullhorn',
+    'fa-bullseye',
+    'fa-bus',
+    'fa-cab',
+    'fa-calculator',
+    'fa-calendar',
+    'fa-calendar-check-o',
+    'fa-calendar-minus-o',
+    'fa-calendar-o',
+    'fa-calendar-plus-o',
+    'fa-calendar-times-o',
+    'fa-camera',
+    'fa-camera-retro',
+    'fa-car',
+    'fa-caret-square-o-down',
+    'fa-caret-square-o-left',
+    'fa-caret-square-o-right',
+    'fa-caret-square-o-up',
+    'fa-cart-arrow-down',
+    'fa-cart-plus',
+    'fa-cc',
+    'fa-certificate',
+    'fa-check',
+    'fa-check-circle',
+    'fa-check-circle-o',
+    'fa-check-square',
+    'fa-check-square-o',
+    'fa-child',
+    'fa-circle',
+    'fa-circle-o',
+    'fa-circle-o-notch',
+    'fa-circle-thin',
+    'fa-clock-o',
+    'fa-clone',
+    'fa-close',
+    'fa-cloud',
+    'fa-cloud-download',
+    'fa-cloud-upload',
+    'fa-code',
+    'fa-code-fork',
     'fa-coffee',
     'fa-cog',
     'fa-cogs',
@@ -27,6 +64,7 @@ var possiblePictures = [
     'fa-commenting-o',
     'fa-comments',
     'fa-comments-o',
+    'fa-compass',
     'fa-copyright',
     'fa-creative-commons',
     'fa-credit-card',
@@ -43,79 +81,92 @@ var possiblePictures = [
     'fa-desktop',
     'fa-diamond',
     'fa-dot-circle-o',
-    'fa-download'
-]
+    'fa-download',
+    'fa-drivers-license',
+    'fa-drivers-license-o',
+    'fa-edit',
+    'fa-ellipsis-h',
+    'fa-ellipsis-v',
+    'fa-envelope',
+    'fa-envelope-o',
+    'fa-envelope-open',
+    'fa-envelope-open-o',
+    'fa-envelope-square',
+    'fa-eraser',
+    'fa-exchange',
+    'fa-exclamation'
+];
 
+var gameDiv = document.getElementById('cards-wrapper');
 
-var wrapperDiv = document.getElementById('cards-wrapper');
-var rowNumber = wrapperDiv.dataset['rowNumber'];
-var columnNumer = wrapperDiv.dataset['columnNumber'];
+var rowNum = parseInt(gameDiv.dataset.rownum);
+var colNum = parseInt(gameDiv.dataset.colnum);
 
+var numberOfImageWeNeed = (rowNum * colNum) / 2;
+var imagesToUse = possibleIcons.slice(0, numberOfImageWeNeed);
+var imagesToUseDoubled = imagesToUse.concat(imagesToUse);
+shuffle(imagesToUseDoubled);
+var shuffledImages = imagesToUseDoubled;
+// debugger;
 
-var numberOfDifferentPicturesToUse = (rowNumber * columnNumer) / 2;
-var picturesToUse = possiblePictures.slice(0, numberOfDifferentPicturesToUse);
-var picturesTwice = picturesToUse.concat(picturesToUse);
-pictureShuffled = shuffle(picturesTwice);
-
-// wrapperDiv.innerHTML = '<i class="fa fa-file-image-o fa-5x"></i>';
-// wrapperDiv.innerHTML += '<i class="fa fa-file-image-o fa-5x"></i>';
-
-
-var backCardClasss = 'fa-file-image-o';
-var imagesToPutOut = '';
-var counter = 0;
-for (let i = 0; i < rowNumber; i++) {
-    for (let j = 0; j < columnNumer; j++) {
-        imagesToPutOut += '<i id="' + counter + '" class="fa ' + backCardClasss + ' fa-5x"></i>';
-        counter++;
+var iconsString = '';
+var indexCounter = 0;
+var backgroundImage = 'fa-building';
+for (let i = 0; i < rowNum; i++) {
+    for (let j = 0; j < colNum; j++) {
+        var image = shuffledImages[indexCounter];
+        iconsString += `<i data-image="${image}" class="fa ${backgroundImage} fa-5x" aria-hidden="true"></i>`;
+        indexCounter++;
     }
-    imagesToPutOut += '<br>';
+    iconsString += '<br>';
 }
-wrapperDiv.innerHTML = imagesToPutOut;
+gameDiv.innerHTML = iconsString;
 
-var selectedCardId = null;
 var cards = document.getElementsByClassName('fa');
-var turnedUpCards = 0;
+var oddClickedCard = null;
+var successfullyFlippedCards = 0;
 for (let i = 0; i < cards.length; i++) {
-    let card = cards[i];
-    card.addEventListener('click', function(event) {
-        if (selectedCardId === null) {
-            // 1st, 3rd, 5th, ... clicks
-            selectedCardId = i;
-            var cardClicked = document.getElementById(selectedCardId);
-            var pictureClass = pictureShuffled[selectedCardId];
-            cardClicked.classList.remove(backCardClasss);
-            cardClicked.classList.add(pictureClass);
+    
+    var card = cards[i];
+    card.addEventListener('click',  function(event){
+        var clickedCard = event.target;
+        var imageOfClickedCard = clickedCard.dataset['image'];
+        
+        if (oddClickedCard === null) {
+            // odd click
+            oddClickedCard = clickedCard;
+            // flip odd card
+            clickedCard.classList.remove(backgroundImage);
+            clickedCard.classList.add(imageOfClickedCard);
         } else {
-            // handle 2nd, 4th, ... clicks
-            var currentlySelectedId = i;
-            var cardClicked = document.getElementById(currentlySelectedId);
-            var pictureClass = pictureShuffled[currentlySelectedId];
-            cardClicked.classList.remove(backCardClasss);
-            cardClicked.classList.add(pictureClass);
-
-            if (pictureClass === pictureShuffled[selectedCardId]) {
-                // we keep the second card turned up
-                console.log('pair :)');
-                turnedUpCards += 2;
-                selectedCardId = null;
-                if (turnedUpCards === columnNumer * rowNumber) {
-                    alert('You won :D Please refresh the page to play again!');
+            // even click
+            // flip even card
+            clickedCard.classList.remove(backgroundImage);
+            clickedCard.classList.add(imageOfClickedCard);
+            var oddImage = oddClickedCard.dataset['image'];
+            if (oddImage === imageOfClickedCard) {
+                // same images
+                // keep them flipped
+                successfullyFlippedCards += 2;
+                if (successfullyFlippedCards === rowNum * colNum) {
+                    alert('You have won :)');
                 }
+                oddClickedCard = null;
             } else {
-                // if they are different
-                // turn back both cards after a second
-                setTimeout(function() {
-                    // debugger;
-                    var firstCard = document.getElementById(selectedCardId);
-                    cardClicked.classList.remove(pictureClass);
-                    cardClicked.classList.add(backCardClasss);
-                    firstCard.classList.remove(pictureShuffled[firstCard.id]);
-                    firstCard.classList.add(backCardClasss);
-                    selectedCardId = null;
-                }, 1000);
+                // different images
+                setTimeout(
+                    function() {
+                        // turn them back after 1 second
+                        // turn them back after 1 second
+                        clickedCard.classList.remove(imageOfClickedCard);
+                        clickedCard.classList.add(backgroundImage);
+                        oddClickedCard.classList.remove(oddImage);
+                        oddClickedCard.classList.add(backgroundImage);
+                        oddClickedCard = null;
+                    },
+                    1000
+                );
             }
         }
-        
     });
 }
